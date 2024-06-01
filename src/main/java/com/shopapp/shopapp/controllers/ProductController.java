@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,9 +72,13 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(errorMessage);
             }
 
-            MultipartFile file = productDTO.getFile();
+            List<MultipartFile> files = productDTO.getFiles();
+            files = files == null ? new ArrayList<MultipartFile>() : files;
+            for (MultipartFile file: files) {
+                if(file.getSize() == 0) {
+                    continue;
+                }
 
-            if (file != null) {
                 // checking size of file and format
                 if (file.getSize() > 10 * 1024 * 1024) {
                     // throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "File is too
@@ -86,6 +91,9 @@ public class ProductController {
                     return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("File must be an image");
                 }
                 String fileName = storeFile(file);
+
+                // lưu vào đối tượng product trong db => sẽ làm sau
+                // lưu vào bảng product_images
             }
             return ResponseEntity.ok("Product created successfully");
         } catch (Exception e) {
