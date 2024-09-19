@@ -1,7 +1,12 @@
 package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.ProductDTO;
+import com.project.shopapp.dtos.ProductImageDTO;
+import com.project.shopapp.models.Product;
+import com.project.shopapp.models.ProductImage;
+import com.project.shopapp.services.IProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +22,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
+@RequiredArgsConstructor
 public class ProductController {
-    @PostMapping(value = "",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    private final IProductService iProductService;
+    @PostMapping("")
     //POST http://localhost:8088/v1/api/products
     public ResponseEntity<?> createProduct(
-            @Valid @ModelAttribute ProductDTO productDTO,
+            @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
     ) {
         try {
@@ -37,8 +44,27 @@ public class ProductController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            List<MultipartFile> files = productDTO.getFiles();
+            Product newProduct = iProductService.createProduct(productDTO);
+
+            return ResponseEntity.ok(newProduct);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(value = "uploads/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //POST http://localhost:8088/v1/api/products
+    public ResponseEntity<?> uploadImages(
+            @PathVariable("id") Long productId,
+            @ModelAttribute("files") List<MultipartFile> files) {
+        try {
+            Product existingProduct = iProductService.getProductById(productId);
             files = files == null ? new ArrayList<MultipartFile>() : files;
+            if(files.size() > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
+                return ResponseEntity.badRequest().body("You can only upload maximum 5 images");
+            }
+            List<ProductImage> productImages = new ArrayList<>();
             for (MultipartFile file : files) {
                 if(file.getSize() == 0) {
                     continue;
@@ -55,16 +81,27 @@ public class ProductController {
                 }
                 // Lưu file và cập nhật thumbnail trong DTO
                 String filename = storeFile(file); // Thay thế hàm này với code của bạn để lưu file
-                //lưu vào đối tượng product trong DB => sẽ làm sau
-                //lưu vào bảng product_images
+                //lưu vào đối tượng product trong DB
+                ProductImage productImage = iProductService.createProductImage(existingProduct.getId(),
+                        ProductImageDTO.builder().imageUrl(filename).build());
+                productImages.add(productImage);
             }
-            return ResponseEntity.ok("Product created successfully");
+            return ResponseEntity.ok().body(productImages);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+
+    }
+
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
     private String storeFile(MultipartFile file) throws IOException {
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+        if(!isImageFile(file) || file.getOriginalFilename() == null) {
+            throw new IOException("Invalid image format");
+        }
+        String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         // Thêm UUID vào trước tên file để đảm bảo tên file là duy nhất
         String uniqueFilename = UUID.randomUUID().toString() + "_" + filename;
         // Đường dẫn đến thư mục mà bạn muốn lưu file
