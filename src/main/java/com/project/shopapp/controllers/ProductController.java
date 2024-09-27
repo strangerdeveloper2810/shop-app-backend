@@ -12,6 +12,7 @@ import com.project.shopapp.services.IProductService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -39,6 +40,7 @@ import java.util.UUID;
 public class ProductController {
     private final IProductService productService;
     private final LocalizationUtils localizationUtils;
+
     @PostMapping("")
     //POST http://localhost:8088/v1/api/products
     public ResponseEntity<?> createProduct(
@@ -54,13 +56,11 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(errorMessages);
             }
             Product newProduct = productService.createProduct(productDTO);
-
             return ResponseEntity.ok(newProduct);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
     @PostMapping(value = "uploads/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     //POST http://localhost:8088/v1/api/products
@@ -107,6 +107,23 @@ public class ProductController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
+        try {
+            java.nio.file.Path imagePath = Paths.get("uploads/"+imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     private String storeFile(MultipartFile file) throws IOException {
         if (!isImageFile(file) || file.getOriginalFilename() == null) {
             throw new IOException("Invalid image format");
@@ -130,8 +147,6 @@ public class ProductController {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
-
-
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getProducts(
             @RequestParam("page")     int page,
@@ -173,11 +188,10 @@ public class ProductController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-    @PostMapping("/generateFakeProducts")
-    public ResponseEntity<String> generateFakeProducts() {
+    //@PostMapping("/generateFakeProducts")
+    private ResponseEntity<String> generateFakeProducts() {
         Faker faker = new Faker();
-        for (int index = 0; index < 1_000_000; index++) {
+        for (int i = 0; i < 1_000_000; i++) {
             String productName = faker.commerce().productName();
             if(productService.existsByName(productName)) {
                 continue;
@@ -187,7 +201,7 @@ public class ProductController {
                     .price((float)faker.number().numberBetween(10, 90_000_000))
                     .description(faker.lorem().sentence())
                     .thumbnail("")
-                    .categoryId((long)faker.number().numberBetween(1, 3))
+                    .categoryId((long)faker.number().numberBetween(2, 5))
                     .build();
             try {
                 productService.createProduct(productDTO);
@@ -197,5 +211,16 @@ public class ProductController {
         }
         return ResponseEntity.ok("Fake Products created successfully");
     }
+    //update a product
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable long id,
+            @RequestBody ProductDTO productDTO) {
+        try {
+            Product updatedProduct = productService.updateProduct(id, productDTO);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
-

@@ -53,6 +53,8 @@ public class WebSecurityConfig {
                             .requestMatchers(POST, String.format("%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(PUT, String.format("%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(DELETE, String.format("%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(GET,
+                                    String.format("%s/products/images/*", apiPrefix)).permitAll()
 
                             //orders
                             .requestMatchers(POST, String.format("%s/orders/**", apiPrefix)).hasRole(Role.USER)
@@ -66,6 +68,9 @@ public class WebSecurityConfig {
                             .requestMatchers(PUT, String.format("%s/order_details/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(DELETE, String.format("%s/order_details/**", apiPrefix)).hasRole(Role.ADMIN)
 
+                            //roles
+                            .requestMatchers(GET,
+                            String.format("%s/roles**", apiPrefix)).permitAll()
                             .anyRequest().authenticated();
                 });
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
