@@ -1,0 +1,55 @@
+# Maven
+target/
+!target/*.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+README-DOCKER.md
+docs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads (sẽ mount từ host)
+uploads/
+
+# Testing
+src/test/
