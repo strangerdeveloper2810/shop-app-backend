@@ -4,12 +4,19 @@
 INSERT INTO roles (id, name) VALUES (1, 'USER') ON CONFLICT (id) DO NOTHING;
 INSERT INTO roles (id, name) VALUES (2, 'ADMIN') ON CONFLICT (id) DO NOTHING;
 
--- Categories
-INSERT INTO categories (id, name) VALUES (1, 'Dien thoai') ON CONFLICT (id) DO NOTHING;
-INSERT INTO categories (id, name) VALUES (2, 'Laptop') ON CONFLICT (id) DO NOTHING;
-INSERT INTO categories (id, name) VALUES (3, 'Phu kien') ON CONFLICT (id) DO NOTHING;
-INSERT INTO categories (id, name) VALUES (4, 'Tablet') ON CONFLICT (id) DO NOTHING;
-INSERT INTO categories (id, name) VALUES (5, 'Smartwatch') ON CONFLICT (id) DO NOTHING;
+-- Categories (insert only if table is empty)
+INSERT INTO categories (id, name)
+SELECT * FROM (VALUES
+    (1, 'Dien thoai'),
+    (2, 'Laptop'),
+    (3, 'Phu kien'),
+    (4, 'Tablet'),
+    (5, 'Smartwatch')
+) AS v(id, name)
+WHERE NOT EXISTS (SELECT 1 FROM categories LIMIT 1);
+
+-- Reset sequence after manual ID insert
+SELECT setval('categories_id_seq', COALESCE((SELECT MAX(id) FROM categories), 0) + 1, false);
 
 -- Admin user (password: 123456 - BCrypt encoded)
 INSERT INTO users (id, fullname, phone_number, address, password, is_active, role_id, facebook_account_id, google_account_id)
