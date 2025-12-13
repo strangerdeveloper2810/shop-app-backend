@@ -38,7 +38,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers(
                             String.format("/%s/users/register",apiPrefix),
-                            String.format("/%s/users/login",apiPrefix)
+                            String.format("/%s/users/login",apiPrefix),
+                            String.format("/%s/healthcheck",apiPrefix)
                     ).permitAll()
                             //Categories
                             .requestMatchers(GET, String.format("/%s/categories/**", apiPrefix)).permitAll()

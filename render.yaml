@@ -1,0 +1,37 @@
+databases:
+  - name: shopapp-db
+    plan: free
+    region: singapore
+
+services:
+  - type: web
+    name: shopapp-backend
+    runtime: docker
+    region: singapore
+    plan: free
+    healthCheckPath: /api/v1/healthcheck
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: shopapp-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: shopapp-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: shopapp-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: shopapp-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: shopapp-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true

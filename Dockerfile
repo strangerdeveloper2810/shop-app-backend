@@ -18,6 +18,9 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copy jar file từ builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
@@ -26,7 +29,7 @@ EXPOSE 8088
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8088/api/v1/roles || exit 1
+  CMD curl -f http://localhost:${PORT:-8088}/api/v1/healthcheck || exit 1
 
-# Run application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run application with dynamic port
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8088}"]
