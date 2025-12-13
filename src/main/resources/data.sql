@@ -26,3 +26,7 @@ ON CONFLICT (id) DO UPDATE SET
     facebook_account_id = 0,
     google_account_id = 0,
     password = '$2a$10$YClzZfm/mSwnT05aLuoxYOS7xGV0BqPTPVjNRmvdvUweiEqEyImqa';
+
+-- Reset all sequences after manual ID inserts
+SELECT setval('roles_id_seq', COALESCE((SELECT MAX(id) FROM roles), 0) + 1, false);
+SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1, false);
