@@ -32,8 +32,8 @@ public class OrderDetailResponse {
         return OrderDetailResponse
                 .builder()
                 .id(orderDetail.getId())
-                .orderId(orderDetail.getOrder().getId())
-                .productId(orderDetail.getProduct().getId())
+                .orderId(orderDetail.getOrder() != null ? orderDetail.getOrder().getId() : null)
+                .productId(orderDetail.getProduct() != null ? orderDetail.getProduct().getId() : null)
                 .price(orderDetail.getPrice())
                 .numberOfProducts(orderDetail.getNumberOfProducts())
                 .totalMoney(orderDetail.getTotalMoney())

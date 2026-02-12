@@ -47,14 +47,13 @@ public class WebSecurityConfig {
                             .requestMatchers(PUT, String.format("/%s/categories/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(DELETE, String.format("/%s/categories/**", apiPrefix)).hasRole(Role.ADMIN)
 
-                            //Products
-                            .requestMatchers(GET, String.format("/%s/products/**", apiPrefix)).hasAnyRole(Role.USER
-                                    , Role.ADMIN)
+                            //Products (images permitAll must come before products/**)
+                            .requestMatchers(GET,
+                                    String.format("/%s/products/images/*", apiPrefix)).permitAll()
+                            .requestMatchers(GET, String.format("/%s/products/**", apiPrefix)).permitAll()
                             .requestMatchers(POST, String.format("/%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(PUT, String.format("/%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(DELETE, String.format("/%s/products/**", apiPrefix)).hasRole(Role.ADMIN)
-                            .requestMatchers(GET,
-                                    String.format("/%s/products/images/*", apiPrefix)).permitAll()
 
                             //orders
                             .requestMatchers(POST, String.format("/%s/orders/**", apiPrefix)).hasRole(Role.USER)

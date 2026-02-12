@@ -22,10 +22,10 @@ public class OrderService implements IOrderService{
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     @Override
-    public Order createOrder(OrderDTO orderDTO) throws Exception {
+    public Order createOrder(OrderDTO orderDTO) throws DataNotFoundException {
         // tìm xem userId có tồn tại hay không
-        User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(()-> new DataNotFoundException("Can't " +
-                "find user with id" + orderDTO.getUserId()));
+        User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(()-> new DataNotFoundException(
+                "Can't find user with id: " + orderDTO.getUserId()));
 
         // Convert orderDTO => order
         // dùng thư viện Model Mapper
@@ -56,13 +56,11 @@ public class OrderService implements IOrderService{
 
     @Override
     public Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
-        Order order = orderRepository.findById(id).orElseThrow(()-> new DataNotFoundException("Can't found " +
-                "order " +
-                "with" +
-                " id" +id));
+        Order order = orderRepository.findById(id).orElseThrow(()-> new DataNotFoundException(
+                "Can't find order with id: " + id));
 
-        User existingUser = userRepository.findById(orderDTO.getUserId()).orElseThrow(()-> new DataNotFoundException("Can't find user " +
-                "with id" +id));
+        User existingUser = userRepository.findById(orderDTO.getUserId()).orElseThrow(()-> new DataNotFoundException(
+                "Can't find user with id: " + orderDTO.getUserId()));
 
         modelMapper.typeMap(OrderDTO.class, Order.class).addMappings(mapper -> mapper.skip(Order::setId));
         //cập nhật các trường của đơn hàng từ orderDTO
@@ -72,12 +70,11 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public void deleteOrder(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(null);
-        if(order != null) {
-            order.setActive(false);
-            orderRepository.save(order);
-        }
+    public void deleteOrder(Long id) throws DataNotFoundException {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new DataNotFoundException("Can't find order with id: " + id));
+        order.setActive(false);
+        orderRepository.save(order);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
 import com.project.shopapp.response.CategoryResponse;
 import com.project.shopapp.response.UpdateCategoryResponse;
-import com.project.shopapp.services.CategoryService;
+import com.project.shopapp.services.ICategoryService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 // Dependency Injection
 @RequiredArgsConstructor
 public class CategoryController {
-    private final CategoryService categoryService;
+    private final ICategoryService categoryService;
     private final LocalizationUtils localizationUtils;
     @PostMapping()
     // Nếu tham số truyền vào là 1 object thì sao => Data transfer object = request
@@ -65,7 +65,7 @@ public class CategoryController {
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
-        categoryService.deletedCategory(id);
+        categoryService.deleteCategory(id);
         return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY));
     }
 }

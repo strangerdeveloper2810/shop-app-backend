@@ -1,9 +1,9 @@
 package com.project.shopapp.services;
 
+import java.util.List;
+
 import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
-
-import java.util.List;
 
 public interface ICategoryService {
     Category createCategory(CategoryDTO category);
@@ -14,6 +14,6 @@ public interface ICategoryService {
 
     Category updateCategory(long categoryId, CategoryDTO category);
 
-    void deletedCategory(long id);
+    void deleteCategory(long id);
 
 }

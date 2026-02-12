@@ -23,8 +23,8 @@ public class OrderDetailService implements IOrderDetailService{
     public OrderDetail createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         // tìm xem orderId có tồn tại hay không
         Order order =
-                orderRepository.findById(orderDetailDTO.getOrderId()).orElseThrow(()-> new DataNotFoundException("Can" +
-                        "'t find Order with id" + orderDetailDTO.getOrderId()));
+                orderRepository.findById(orderDetailDTO.getOrderId()).orElseThrow(()-> new DataNotFoundException(
+                        "Can't find Order with id: " + orderDetailDTO.getOrderId()));
 
         // tìm product theo id
         Product product =
@@ -45,13 +45,13 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
-    public OrderDetail getOrderDetail(Long id) throws  Exception{
+    public OrderDetail getOrderDetail(Long id) throws DataNotFoundException {
         return orderDetailRepository.findById(id).orElseThrow(()-> new DataNotFoundException("Can't find OrderDetail " +
                 "with id " +id));
     }
 
     @Override
-    public OrderDetail updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO) throws Exception {
+    public OrderDetail updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         // Tìm xem order detail có tồn tại hay kh
 
         OrderDetail existingOrderDetail =
@@ -59,8 +59,8 @@ public class OrderDetailService implements IOrderDetailService{
                         "detail with id " +id));
 
         Order existingOrder =
-                orderRepository.findById(orderDetailDTO.getOrderId()).orElseThrow(()-> new DataNotFoundException("Can" +
-                        "'t find order with " +orderDetailDTO.getOrderId()));
+                orderRepository.findById(orderDetailDTO.getOrderId()).orElseThrow(()-> new DataNotFoundException(
+                        "Can't find order with id: " + orderDetailDTO.getOrderId()));
 
         Product existingProduct =
                 productRepository.findById(orderDetailDTO.getProductId()).orElseThrow(()-> new DataNotFoundException(

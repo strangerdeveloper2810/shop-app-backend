@@ -1,10 +1,10 @@
 package com.project.shopapp.configurations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class MapperConfiguration {
@@ -17,7 +17,7 @@ public class MapperConfiguration {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.getFactory().configure(
-            com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII,
+            JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(),
             false
         );
         return mapper;

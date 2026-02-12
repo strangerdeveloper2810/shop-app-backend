@@ -3,7 +3,8 @@ package com.project.shopapp.services;
 import com.project.shopapp.components.JwtTokenUtil;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
-import com.project.shopapp.exceptions.PermisstionDenyException;
+import com.project.shopapp.exceptions.InvalidParamsException;
+import com.project.shopapp.exceptions.PermissionDenyException;
 import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
 import com.project.shopapp.repository.RoleRepository;
@@ -27,7 +28,7 @@ public class UserService implements IUserService{
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     @Override
-    public User createUser(UserDTO userDTO) throws DataNotFoundException, PermisstionDenyException {
+    public User createUser(UserDTO userDTO) throws DataNotFoundException, PermissionDenyException {
         String phoneNumber = userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DataIntegrityViolationException("Phone number already exists");
@@ -36,8 +37,8 @@ public class UserService implements IUserService{
         Role role = roleRepository.findById(userDTO.getRoleId()).orElseThrow(()-> new DataNotFoundException("Role " +
                 "not Found"));
 
-        if(role.getName().toUpperCase().equals(Role.ADMIN)) {
-            throw new PermisstionDenyException("You can't register admin account !");
+        if(role.getName().equalsIgnoreCase(Role.ADMIN)) {
+            throw new PermissionDenyException("You can't register admin account !");
         }
         //Convert from userDTO to user
         User newUser = User
@@ -61,7 +62,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public String login(String phoneNumber, String password) throws Exception{
+    public String login(String phoneNumber, String password) throws DataNotFoundException, InvalidParamsException {
         Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()) {
             throw new DataNotFoundException("Invalid phone number/ password");

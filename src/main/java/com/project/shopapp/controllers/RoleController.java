@@ -1,7 +1,7 @@
 package com.project.shopapp.controllers;
 
 import com.project.shopapp.models.Role;
-import com.project.shopapp.services.RoleService;
+import com.project.shopapp.services.IRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("${api.prefix}/roles")
 @RequiredArgsConstructor
 public class RoleController {
-    private final RoleService roleService;
+    private final IRoleService roleService;
     @GetMapping("")
     public ResponseEntity<?> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();

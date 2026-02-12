@@ -38,7 +38,7 @@ public class CategoryService implements  ICategoryService {
     }
 
     @Override
-    public void deletedCategory(long id) {
+    public void deleteCategory(long id) {
         categoryRepository.deleteById(id);
     }
 }

@@ -71,9 +71,13 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrder(@Valid @PathVariable Long id) {
-        // xoá mềm => cập nhật trường active = false;
-        orderService.deleteOrder(id);
-        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY));
+    public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
+        try {
+            // xoá mềm => cập nhật trường active = false;
+            orderService.deleteOrder(id);
+            return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
