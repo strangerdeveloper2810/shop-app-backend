@@ -2,14 +2,16 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
+import com.project.shopapp.exceptions.PermissionDenyException;
 import com.project.shopapp.models.Order;
+import com.project.shopapp.models.Role;
+import com.project.shopapp.models.User;
 import com.project.shopapp.services.IOrderService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,64 +22,57 @@ import java.util.List;
 public class OrderController {
     private final IOrderService orderService;
     private final LocalizationUtils localizationUtils;
+
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            Order orderResponse = orderService.createOrder(orderDTO);
-            return ResponseEntity.ok(orderResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO) {
+        User authenticatedUser = getAuthenticatedUser();
+        if (!authenticatedUser.getId().equals(orderDTO.getUserId())) {
+            throw new PermissionDenyException("You can only create orders for yourself");
         }
+        Order orderResponse = orderService.createOrder(orderDTO);
+        return ResponseEntity.ok(orderResponse);
     }
 
-    @GetMapping("/user/{user_id}") // thêm đường dẫn "user_id"
-    //GET http://localhost:8088/api/v1/orders/4
-    public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId) {
-        try {
-            List<Order> orders = orderService.findByUserId(userId);
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @GetMapping("/user/{user_id}")
+    public ResponseEntity<?> getOrders(@PathVariable("user_id") Long userId) {
+        User authenticatedUser = getAuthenticatedUser();
+        if (!isAdminOrOwner(authenticatedUser, userId)) {
+            throw new PermissionDenyException("You can only view your own orders");
         }
-
+        List<Order> orders = orderService.findByUserId(userId);
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")
-    //GET http://localhost:8088/api/v1/orders/4
-    public ResponseEntity<?> getOrder(@Valid @PathVariable("id") Long orderId) {
-        try {
-            Order existingOrder = orderService.getOrder(orderId);
-            return ResponseEntity.ok(existingOrder);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> getOrder(@PathVariable("id") Long orderId) {
+        Order existingOrder = orderService.getOrder(orderId);
+        User authenticatedUser = getAuthenticatedUser();
+        if (!isAdminOrOwner(authenticatedUser, existingOrder.getUser().getId())) {
+            throw new PermissionDenyException("You can only view your own orders");
         }
-
+        return ResponseEntity.ok(existingOrder);
     }
 
     @PutMapping("/{id}")
-    //PUT http://localhost:8088/api/v1/orders/2
-    // công việc của admin
-    public ResponseEntity<?> updateOrder(@Valid @PathVariable long id, @Valid @RequestBody OrderDTO orderDTO){
-        try{
-            Order order = orderService.updateOrder(id, orderDTO);
-            return ResponseEntity.ok(order);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> updateOrder(@PathVariable long id, @Valid @RequestBody OrderDTO orderDTO) {
+        Order order = orderService.updateOrder(id, orderDTO);
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
-        try {
-            // xoá mềm => cập nhật trường active = false;
-            orderService.deleteOrder(id);
-            return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY));
+    }
+
+    private User getAuthenticatedUser() {
+        return (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+    }
+
+    private boolean isAdminOrOwner(User authenticatedUser, Long ownerId) {
+        boolean isAdmin = authenticatedUser.getRole().getName()
+                .equalsIgnoreCase(Role.ADMIN);
+        return isAdmin || authenticatedUser.getId().equals(ownerId);
     }
 }

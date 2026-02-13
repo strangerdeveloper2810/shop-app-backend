@@ -19,27 +19,21 @@ import java.util.List;
 public class OrderDetailController {
     private final IOrderDetailService orderDetailService;
     private final LocalizationUtils localizationUtils;
-    // thêm mới 1 order detail
+
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO) {
-      try{
-          OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
-          return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(newOrderDetail));
-      }catch (Exception e) {
-          return ResponseEntity.badRequest().body(e.getMessage());
-      }
+        OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
+        return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(newOrderDetail));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?>getOrderDetail(@Valid @PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<?> getOrderDetail(@PathVariable("id") Long id) {
         OrderDetail orderDetail = orderDetailService.getOrderDetail(id);
         return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(orderDetail));
-//        return ResponseEntity.ok(orderDetail);
     }
 
-    // Lấy ra danh sách các order_details của 1 order nào đó
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<?> getOrderDetails(@Valid @PathVariable("orderId") Long orderId) {
+    public ResponseEntity<?> getOrderDetails(@PathVariable("orderId") Long orderId) {
         List<OrderDetail> orderDetails = orderDetailService.findByOrderId(orderId);
         List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
                 .map(OrderDetailResponse::fromOrderDetail)
@@ -48,18 +42,13 @@ public class OrderDetailController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?>updateOrderDetail(@Valid @PathVariable("id") Long id, @RequestBody OrderDetailDTO orderDetailDTO) {
-        try {
-          OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
-          return ResponseEntity.ok().body(orderDetail);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> updateOrderDetail(@PathVariable("id") Long id, @RequestBody OrderDetailDTO orderDetailDTO) {
+        OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+        return ResponseEntity.ok().body(orderDetail);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrderDetail(
-            @Valid @PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteOrderDetail(@PathVariable("id") Long id) {
         orderDetailService.deleteOrderDetail(id);
         return ResponseEntity.ok()
                 .body(localizationUtils

@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ import static org.springframework.http.HttpMethod.*;
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity
-@EnableWebMvc
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     @Value("${api.prefix}")
@@ -39,7 +37,8 @@ public class WebSecurityConfig {
                     request.requestMatchers(
                             String.format("/%s/users/register",apiPrefix),
                             String.format("/%s/users/login",apiPrefix),
-                            String.format("/%s/healthcheck",apiPrefix)
+                            String.format("/%s/healthcheck",apiPrefix),
+                            "/error"
                     ).permitAll()
                             //Categories
                             .requestMatchers(GET, String.format("/%s/categories/**", apiPrefix)).permitAll()
@@ -69,7 +68,7 @@ public class WebSecurityConfig {
 
                             //roles
                             .requestMatchers(GET,
-                            String.format("/%s/roles**", apiPrefix)).permitAll()
+                            String.format("/%s/roles/**", apiPrefix)).permitAll()
                             .anyRequest().authenticated();
                 });
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {

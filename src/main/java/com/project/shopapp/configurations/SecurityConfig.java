@@ -21,7 +21,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return phoneNumber -> userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(()-> new UsernameNotFoundException("Can't find user with phone number" + phoneNumber));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials"));
     }
 
     @Bean

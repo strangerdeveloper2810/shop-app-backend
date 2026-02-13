@@ -26,7 +26,7 @@ public class ProductService implements IProductService{
     private final ProductImageRepository productImageRepository;
 
     @Override
-    public Product createProduct(ProductDTO productDTO) throws DataNotFoundException {
+    public Product createProduct(ProductDTO productDTO) {
         Category existingCategory =
                 categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(()-> new DataNotFoundException(
                         "Can't find category with id: " + productDTO.getCategoryId()));
@@ -41,7 +41,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public Product getProductById(long productId) throws DataNotFoundException {
+    public Product getProductById(long productId) {
         return productRepository.findById(productId).
                 orElseThrow(()-> new DataNotFoundException(
                         "Cannot find product with id ="+productId));
@@ -57,7 +57,7 @@ public class ProductService implements IProductService{
             long id,
             ProductDTO productDTO
     )
-            throws DataNotFoundException {
+            {
         Product existingProduct = getProductById(id);
         //copy các thuộc tính từ DTO -> Product
         //Có thể sử dụng ModelMapper
@@ -88,7 +88,7 @@ public class ProductService implements IProductService{
     @Override
     public ProductImage createProductImage(
             Long productId,
-            ProductImageDTO productImageDTO) throws DataNotFoundException, InvalidParamsException {
+            ProductImageDTO productImageDTO) {
         Product existingProduct = productRepository
                 .findById(productId)
                 .orElseThrow(() ->

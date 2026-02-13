@@ -22,7 +22,7 @@ public class OrderService implements IOrderService{
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     @Override
-    public Order createOrder(OrderDTO orderDTO) throws DataNotFoundException {
+    public Order createOrder(OrderDTO orderDTO) {
         // tìm xem userId có tồn tại hay không
         User user = userRepository.findById(orderDTO.getUserId()).orElseThrow(()-> new DataNotFoundException(
                 "Can't find user with id: " + orderDTO.getUserId()));
@@ -51,11 +51,12 @@ public class OrderService implements IOrderService{
 
     @Override
     public Order getOrder(Long id) {
-        return orderRepository.findById(id).orElse(null);
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Can't find order with id: " + id));
     }
 
     @Override
-    public Order updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
+    public Order updateOrder(Long id, OrderDTO orderDTO) {
         Order order = orderRepository.findById(id).orElseThrow(()-> new DataNotFoundException(
                 "Can't find order with id: " + id));
 
@@ -70,7 +71,7 @@ public class OrderService implements IOrderService{
     }
 
     @Override
-    public void deleteOrder(Long id) throws DataNotFoundException {
+    public void deleteOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new DataNotFoundException("Can't find order with id: " + id));
         order.setActive(false);

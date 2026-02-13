@@ -7,11 +7,11 @@ import com.project.shopapp.models.OrderDetail;
 import java.util.List;
 
 public interface IOrderDetailService {
-    OrderDetail createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException;
+    OrderDetail createOrderDetail(OrderDetailDTO orderDetailDTO);
 
-    OrderDetail getOrderDetail(Long id) throws DataNotFoundException;
+    OrderDetail getOrderDetail(Long id);
 
-    OrderDetail updateOrderDetail(Long id, OrderDetailDTO newOrderDetailData) throws DataNotFoundException;
+    OrderDetail updateOrderDetail(Long id, OrderDetailDTO newOrderDetailData);
 
     void deleteOrderDetail(Long id);
 

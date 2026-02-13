@@ -7,7 +7,7 @@ import com.project.shopapp.exceptions.PermissionDenyException;
 import com.project.shopapp.models.User;
 
 public interface IUserService {
-    User createUser(UserDTO userDTO) throws DataNotFoundException, PermissionDenyException;
+    User createUser(UserDTO userDTO);
 
-    String login(String phoneNumber, String password) throws DataNotFoundException, InvalidParamsException;
+    String login(String phoneNumber, String password);
 }

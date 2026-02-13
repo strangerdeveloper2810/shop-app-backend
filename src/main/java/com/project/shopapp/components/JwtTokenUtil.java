@@ -28,7 +28,7 @@ public class JwtTokenUtil {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(com.project.shopapp.models.User user) throws InvalidParamsException {
+    public String generateToken(com.project.shopapp.models.User user) {
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
